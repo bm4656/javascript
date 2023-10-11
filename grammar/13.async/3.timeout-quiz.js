@@ -1,0 +1,17 @@
+// 주어진 seconds(초)가 지나면 callback함수를 호출함
+// 단, seconds가 0보다 작으면 에러 던지기!
+function runInDelay(callback, seconds) {
+  if (!callback) {
+    throw new Error('callback함수가 없어요!');
+  }
+  if (!seconds || seconds < 0) {
+    throw new Error('seconds는 0보다 커야함!');
+  }
+  setTimeout(callback, seconds * 1000);
+}
+
+try {
+  runInDelay(() => console.log('타이머 끄읕!'), 5);
+} catch (error) {
+  console.log(error);
+}
