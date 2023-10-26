@@ -7,19 +7,19 @@
 function Cat(name) {
   this.name = name;
   this.printName = function () {
-    console.log(`고양이의 이름을 출력한다옹: ${this.name}`);
+    console.log(`고양이 이름이다냥: ${this.name}`);
   };
 }
 
 function Dog(name) {
   this.name = name;
   this.printName = function () {
-    console.log(`강아지의 이름을 출력한다옹: ${this.name}`);
+    console.log(`강아지 이름이다멍: ${this.name}`);
   };
 }
 
-const cat = new Cat('냐옹');
-const dog = new Dog('멍멍');
+const cat = new Cat('나비');
+const dog = new Dog('마루');
 cat.printName();
 dog.printName();
 
@@ -29,7 +29,7 @@ cat.printName();
 
 function printOnMonitor(printName) {
   console.log('모니터를 준비하고!, 전달된 콜백을 실행!');
-  printName();
+  printName(); //호출하는 사람이 없음.
 }
 
 printOnMonitor(cat.printName);
