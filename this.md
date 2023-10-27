@@ -22,8 +22,11 @@
 
 - 전역 문맥에서 `this`는 엄격 모드 여부에 관계 없이 전역 객체를 참조한다.
 - 글로벌 컨텍스트의 this
+
   - 브라우저: window
+    ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/47922ee1-a75e-4dc3-ba96-8fa80767047f/9f2fa4e2-ab13-4be6-bd6f-492400056670/Untitled.png)
   - 노드 : 모듈
+
   ```tsx
   console.log(this); // {}
 
@@ -179,3 +182,73 @@ o.method();
 
 - f1() 실행 시 새로운 컨텍스트 생성 → f1에 바인딩된 컨텍스트 없다 → this는 global 가리킴
 - f2()는 함수 컨텍스트 생성 → this 변수는 부모의 컨텍스트 가리킴 → this는 o가 됨
+
+## 🔥 정리
+
+- this는 앞으로 생성될 인스턴스나 지금의 객체를 가리키는 자기 참조 변수다.
+- 자바스크립트에서 this는 동적으로 바인딩되는데, 호출한 caller에 따라 결정된다.
+- 단순 호출시에는 전역 객체
+- 생성자 함수나 클래스에서는 앞으로 생성될 인스턴스
+- 객체의 메서드로서는 메서드를 호출한 객체, 즉 . 앞의 객체를 가리킨다.
+- this를 정적으로 고정하기 위해서는 화살표 함수를 사용하거나, bind(), call(), apply() 메서드를 사용할 수 있다.
+
+## 💦 setTimeout()
+
+> 지정한 시간 후 함수나 지정한 코드를 실행하는 타이머를 설정하는 비동기 메서드
+
+- setTimout에서 this는 항상 전역 객체(window)를 this 바인딩 한다.
+- **그 이유는 setTimeout이 실행되는 코드는 setTimeout을 호출했던 곳과는 다른 실행 컨텍스크(브라우저)에서 호출되기 때문이다.**
+- 호출 함수의 this 키워드 값을 설정하는 일반적인 규칙(객체의 메서드로서! - this는 . 앞의 객체를 가리킴)이 여기서도 적용되며, this를 호출 시 지정하지 않고, bind를 바인딩을 하지 않는 경우 **window**를 가리키게 된다.
+
+```jsx
+const myArray = ['zero', 'one', 'two'];
+
+myArray.myMethod = function (sProperty) {
+  // this[sProperty]가 myArray[sProperty]와 동일함 확인
+  console.log(arguments.length > 0 ? this[sProperty] : this);
+};
+
+// 여기서 this는 myArray
+myArray.myMethod(); // [ 'zero', 'one', 'two', myMethod: [Function (anonymous)] ]
+myArray.myMethod(1); // one
+```
+
+- setTimeout을 사용해서 호출해보면
+
+```jsx
+// 타이머 완료 후 호출 시점에 this가 따로 설정되지 않았기 때문 -> window
+setTimeout(myArray.myMethod, 1.0 * 1000); // 1초 후, window
+setTimeout(myArray.myMethod, 1.5 * 1000, '1'); //1.5초 후, undefined
+```
+
+- 타이머 완료 후 호출 시점에서 this가 따로 설정되지 않았기 때문에 this는 window를 가리킨다.
+- 이를 해결하기 위해서 함수(화살표 함수, 익명함수 등)를 감싸서 해결할 수 있고, bind로 this 값을 설정할 수도 있다.
+
+```jsx
+// 💡 해결법
+// 1. 함수 감싸기
+setTimeout(function () {
+  myArray.myMethod();
+}, 2.0 * 1000); // [ 'zero', 'one', 'two', myMethod: [Function (anonymous)] ]
+setTimeout(function () {
+  myArray.myMethod('1');
+}, 2.5 * 1000); // one
+
+// 2. 화살표 함수
+setTimeout(() => {
+  myArray.myMethod();
+}, 2.0 * 1000); // [ 'zero', 'one', 'two', myMethod: [Function (anonymous)] ]
+setTimeout(() => {
+  myArray.myMethod('1');
+}, 2.5 * 1000); // "one"
+
+// 3. bind
+const myBoundMethod = function (sProperty) {
+  console.log(arguments.length > 0 ? this[sProperty] : this);
+}.bind(myArray);
+
+myBoundMethod(); //  [ 'zero', 'one', 'two', myMethod: [Function (anonymous)] ]
+myBoundMethod(1); // one
+setTimeout(myBoundMethod, 1.0 * 1000); // [ 'zero', 'one', 'two', myMethod: [Function (anonymous)] ]
+setTimeout(myBoundMethod, 1.5 * 1000, '1'); // one
+```
